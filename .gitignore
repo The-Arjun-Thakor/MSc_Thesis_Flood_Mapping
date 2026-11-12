@@ -2,3 +2,4 @@
 *.zip
 *.tif
 __pycache__/
+.vscode/
