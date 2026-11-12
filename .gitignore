@@ -2,4 +2,3 @@
 *.zip
 *.tif
 __pycache__/
-*.xml
