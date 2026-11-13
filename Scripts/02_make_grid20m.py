@@ -168,7 +168,7 @@ def main():
         save('worldcover.tif', wc, grid)
         vals, counts = np.unique(wc[inside], return_counts=True)
         print('worldcover.tif     : %d tiles | classes inside AOI (%%): %s'
-              % (len(tiles), {int(k): round(100.0 * c / inside.sum(), 1) for k, c in zip(vals, counts)}))
+              % (len(tiles), {int(k): float(round(100.0 * c / inside.sum(), 1)) for k, c in zip(vals, counts)}))
     print('saved to', OUT)
 
 
