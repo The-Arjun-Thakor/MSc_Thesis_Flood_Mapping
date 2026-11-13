@@ -17,6 +17,9 @@ import rasterio
 REPO = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 sys.path.insert(0, REPO)
 from config import DATA_ROOT
+import provenance
+
+STAMP = provenance.stamp()
 
 EVENT, AOI = 'EMSR866_pilot', 'AOI01'
 GRID_DIR = os.path.join(DATA_ROOT, '03_grid20m', EVENT, AOI)
@@ -60,6 +63,7 @@ def compute_metrics(name_a, name_b):
            'first_only_ha': round((n_a - n_both) * CELL_HA, 2),
            'second_only_ha': round((n_b - n_both) * CELL_HA, 2),
            'iou': round(iou, 4), 'omission': round(omission, 4), 'commission': round(commission, 4)}
+    row.update(STAMP)
 
     print('\n--- %s vs %s ---%s' % (name_a, name_b, '  (GFM exclusion mask left out)' if uses_gfm else ''))
     print('comparison area : %10.1f ha' % row['comparison_area_ha'])
@@ -78,3 +82,4 @@ with open(OUT_CSV, 'w', newline='', encoding='utf-8') as f:
     w = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
     w.writeheader(); w.writerows(rows)
 print('\nsaved', OUT_CSV)
+print('code version: %(git_commit)s | run: %(run_utc)s' % STAMP)

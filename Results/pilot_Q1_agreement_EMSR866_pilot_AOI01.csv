@@ -1,4 +1,4 @@
-event,aoi,first_map,second_map,gfm_exclusion_applied,comparison_area_ha,first_flood_ha,second_flood_ha,both_ha,first_only_ha,second_only_ha,iou,omission,commission
-EMSR866_pilot,AOI01,EMS,GFM,True,265843.64,20302.12,2657.48,2570.84,17731.28,86.64,0.1261,0.8734,0.0326
-EMSR866_pilot,AOI01,EMS,Baseline,False,533843.04,22084.44,1210.96,1192.84,20891.6,18.12,0.054,0.946,0.015
-EMSR866_pilot,AOI01,GFM,Baseline,True,263698.2,2657.2,1196.76,955.6,1701.6,241.16,0.3297,0.6404,0.2015
+event,aoi,first_map,second_map,gfm_exclusion_applied,comparison_area_ha,first_flood_ha,second_flood_ha,both_ha,first_only_ha,second_only_ha,iou,omission,commission,git_commit,run_utc
+EMSR866_pilot,AOI01,EMS,GFM,True,265843.64,20302.12,2657.48,2570.84,17731.28,86.64,0.1261,0.8734,0.0326,1c7c6a65f6-dirty,2026-11-13T23:02:33Z
+EMSR866_pilot,AOI01,EMS,Baseline,False,533843.04,22084.44,1210.96,1192.84,20891.6,18.12,0.054,0.946,0.015,1c7c6a65f6-dirty,2026-11-13T23:02:33Z
+EMSR866_pilot,AOI01,GFM,Baseline,True,263698.2,2657.2,1196.76,955.6,1701.6,241.16,0.3297,0.6404,0.2015,1c7c6a65f6-dirty,2026-11-13T23:02:33Z

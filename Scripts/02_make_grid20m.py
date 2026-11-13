@@ -10,6 +10,7 @@ Layers written to 03_grid20m/<event>/<AOI>/ (GeoTIFF, uint8 unless stated; 255 =
   gfm_flood.tif       GFM ensemble flood extent (nearest neighbour; flood if any overlapping scene says flood)
   gfm_excl.tif        GFM exclusion mask (nearest neighbour; excluded if any overlapping scene says so)
   gfm_advflag.tif     GFM advisory flags (nearest neighbour; flags of overlapping scenes combined)
+  gfm_refwater.tif    GFM reference water mask for the month (nearest neighbour; 1 = permanent, 2 = seasonal)
   layover_shadow.tif  1 where at least 2 of the four 10 m pixels are layover or shadow (SNAP mask)
   lia.tif             mean local incidence angle of the four 10 m pixels, degrees (float32, nodata -1)
   worldcover.tif      ESA WorldCover 2021 class (most frequent class in the cell)
@@ -27,6 +28,9 @@ from rasterio.windows import from_bounds
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')))
 from config import DATA_ROOT
+import provenance
+
+STAMP = provenance.stamp()
 
 # ---- fixed rules (locked in git after the pilot) ----
 CELL = 20.0               # grid cell size in metres
@@ -52,6 +56,7 @@ def save(name, arr, grid, nodata=NODATA, dtype='uint8'):
                 transform=grid['transform'], nodata=nodata, compress='deflate', tiled=True)
     with rasterio.open(os.path.join(OUT, name), 'w', **prof) as dst:
         dst.write(arr.astype(dtype), 1)
+        dst.update_tags(**STAMP)
 
 
 def read_10m_blocks(path, grid, fill):
@@ -133,7 +138,8 @@ def main():
     # 5. GFM: mosaic the tiles of all overlapping scenes
     for key, name, combine in [('ENSEMBLE_FLOOD', 'gfm_flood.tif', np.maximum),
                                ('ENSEMBLE_EXCLAYER', 'gfm_excl.tif', np.maximum),
-                               ('ADVFLAG', 'gfm_advflag.tif', np.bitwise_or)]:
+                               ('ADVFLAG', 'gfm_advflag.tif', np.bitwise_or),
+                               ('REFERENCE_WATER', 'gfm_refwater.tif', np.maximum)]:
         acc = np.full(shape, NODATA, dtype=np.uint8)
         used = 0
         for f in sorted(glob.glob(os.path.join(GFM_DIR, '*_%s_*.tif' % key))):
@@ -170,6 +176,7 @@ def main():
         print('worldcover.tif     : %d tiles | classes inside AOI (%%): %s'
               % (len(tiles), {int(k): float(round(100.0 * c / inside.sum(), 1)) for k, c in zip(vals, counts)}))
     print('saved to', OUT)
+    print('code version: %(git_commit)s | run: %(run_utc)s' % STAMP)
 
 
 if __name__ == '__main__':

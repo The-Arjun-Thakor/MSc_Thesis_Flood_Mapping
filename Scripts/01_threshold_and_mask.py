@@ -14,6 +14,7 @@ from scipy import ndimage
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')))
 from config import DATA_ROOT
+import provenance
 
 # ---- fixed rules (locked in git after the pilot) ----
 THRESHOLD_DB = -16.5      # UN-SPIDER tutorial threshold, applied to VV sigma0 in dB
@@ -85,11 +86,12 @@ def main():
 
     # 4. write
     out = np.where(valid, flood.astype(np.uint8), NODATA).astype(np.uint8)
+    stamp = provenance.stamp()
     with rasterio.open(OUT, 'w', **profile) as dst:
         dst.write(out, 1)
         dst.update_tags(threshold_db=str(THRESHOLD_DB), min_patch_ha=str(MIN_PATCH_HA),
                         connectivity=str(CONNECTIVITY), post=os.path.basename(os.path.dirname(POST)),
-                        pre=os.path.basename(os.path.dirname(PRE)))
+                        pre=os.path.basename(os.path.dirname(PRE)), **stamp)
 
     ha = px_area_m2 / 10000.0
     print('\nrules: threshold %.1f dB | min patch %.1f ha = %d px | connectivity %d'
@@ -100,6 +102,7 @@ def main():
     print('flooded before patch filter          : %12d  (%.0f ha) in %d patches' % (n_before, n_before * ha, n_patches))
     print('flooded after patch filter           : %12d  (%.0f ha) in %d patches' % (n_after, n_after * ha, int(keep.sum())))
     print('saved', OUT)
+    print('code version: %(git_commit)s | run: %(run_utc)s' % stamp)
 
 
 if __name__ == '__main__':
