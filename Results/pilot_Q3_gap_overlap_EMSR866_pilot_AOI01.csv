@@ -1,0 +1,3 @@
+event,aoi,gap_direction,comparison_area_ha,gap_ha,baseline_same_direction_ha,baseline_same_direction_share,gap_on_gfm_reference_water_ha,gap_on_gfm_reference_water_share,git_commit,run_utc
+EMSR866_pilot,AOI01,"EMS flood, GFM dry",263698.2,17686.84,17455.84,0.9869,881.76,0.0499,abc8be8817-dirty,2026-11-13T23:42:42Z
+EMSR866_pilot,AOI01,"GFM flood, EMS dry",263698.2,86.52,7.24,0.0837,0.28,0.0032,abc8be8817-dirty,2026-11-13T23:42:42Z
