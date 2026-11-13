@@ -13,6 +13,7 @@ For each pair of maps and each direction (flood only in the first map / only in 
 Outputs in Results/:
   ..._Q2_patches_...csv   one row per labelled patch
   ..._Q2_summary_...csv   area and share per pair, direction and label (shares add up to 100 %)
+  ..._Q2_unexplained_landcover_...csv   description only: WorldCover classes inside the unexplained patches
 
 Usage:  python Scripts/04_patch_labelling.py            (pilot: EMSR866 AOI01)
 """
@@ -40,6 +41,9 @@ EVENT, AOI = 'EMSR866_pilot', 'AOI01'
 GRID_DIR = os.path.join(DATA_ROOT, '03_grid20m', EVENT, AOI)
 OUT_DIR = os.path.join(REPO, 'Results')
 LABELS = ['layover/shadow', 'built-up/tree cover', 'unexplained', 'small patches']
+WC_NAMES = {10: 'tree cover', 20: 'shrubland', 30: 'grassland', 40: 'cropland', 50: 'built-up',
+            60: 'bare / sparse vegetation', 70: 'snow and ice', 80: 'permanent water bodies',
+            90: 'herbaceous wetland', 95: 'mangroves', 100: 'moss and lichen', 255: 'no data'}
 
 
 def load_tif(name):
@@ -69,10 +73,11 @@ def comparison_area(name_a, name_b):
 
 
 def label_patches(diff, pair, direction):
-    """Label the patches of one disagreement mask. Returns one row per patch (small patches included)."""
+    """Label the patches of one disagreement mask. Returns one row per patch (small patches included)
+    and the number of cells per WorldCover class inside the unexplained patches."""
     labeled, n = ndimage.label(diff, structure=STRUCTURE)
     if n == 0:
-        return pd.DataFrame()
+        return pd.DataFrame(), np.zeros(256, dtype=np.int64)
     ids = labeled[diff]                                   # patch id of every disagreeing cell
     count = lambda weights=None: np.bincount(ids, weights=weights, minlength=n + 1)[1:]
     cells = count()
@@ -88,23 +93,30 @@ def label_patches(diff, pair, direction):
     label[share_cover >= MIN_SHARE] = 'built-up/tree cover'
     label[share_layover >= MIN_SHARE] = 'layover/shadow'         # first in the order, so it wins
     label[cells < MIN_PATCH_CELLS] = 'small patches'
+    wc_unexplained = wc_counts[label == 'unexplained'].sum(axis=0)
     return pd.DataFrame({'event': EVENT, 'aoi': AOI, 'pair': pair, 'direction': direction,
                          'patch_id': np.arange(1, n + 1), 'cells': cells.astype(int),
                          'area_ha': cells * CELL_HA, 'share_layover_shadow': share_layover,
                          'share_builtup_tree': share_cover, 'label': label,
                          'lia_cells': lia_n.astype(int), 'lia_sum': lia_sum,
                          'mean_lia_deg': np.where(lia_n > 0, lia_sum / np.maximum(lia_n, 1), np.nan),
-                         'main_worldcover_class': main_wc})
+                         'main_worldcover_class': main_wc}), wc_unexplained
 
 
-patches = []
+patches, landcover = [], []
 for name_a, name_b in [('EMS', 'GFM'), ('EMS', 'Baseline'), ('GFM', 'Baseline')]:
     valid = comparison_area(name_a, name_b)
     a = (maps[name_a] == 1) & valid
     b = (maps[name_b] == 1) & valid
     pair = '%s vs %s' % (name_a, name_b)
-    patches.append(label_patches(a & ~b, pair, '%s only' % name_a))
-    patches.append(label_patches(b & ~a, pair, '%s only' % name_b))
+    for diff, direction in [(a & ~b, '%s only' % name_a), (b & ~a, '%s only' % name_b)]:
+        df, wc_cells = label_patches(diff, pair, direction)
+        patches.append(df)
+        for cls in np.nonzero(wc_cells)[0]:
+            landcover.append({'event': EVENT, 'aoi': AOI, 'pair': pair, 'direction': direction,
+                              'worldcover_class': int(cls), 'class_name': WC_NAMES.get(int(cls), 'other'),
+                              'area_ha': round(wc_cells[cls] * CELL_HA, 2),
+                              'percent_of_unexplained': round(100.0 * wc_cells[cls] / wc_cells.sum(), 2)})
 patches = pd.concat(patches, ignore_index=True)
 
 # summary per pair, direction and label
@@ -122,19 +134,27 @@ summary = pd.DataFrame(rows)
 # check: the labels of each pair and direction add up to the whole disagreeing area
 check = summary.groupby(['pair', 'direction'])['percent'].sum()
 assert (abs(check - 100.0) < 0.05).all(), 'shares do not add up to 100 %'
+landcover = pd.DataFrame(landcover)
+# check: the land-cover table covers exactly the unexplained area of the summary
+unexpl = summary[summary['label'] == 'unexplained'].set_index(['pair', 'direction'])['area_ha']
+assert (abs(landcover.groupby(['pair', 'direction'])['area_ha'].sum() - unexpl[unexpl > 0]) < 0.5).all()
 for k, v in STAMP.items():
     summary[k] = v
     patches[k] = v
+    landcover[k] = v
 
 os.makedirs(OUT_DIR, exist_ok=True)
 tag = '%s_%s' % (EVENT, AOI)
 keep = patches[patches['label'] != 'small patches'].drop(columns=['lia_cells', 'lia_sum']).round(4)
 keep.to_csv(os.path.join(OUT_DIR, 'pilot_Q2_patches_%s.csv' % tag), index=False)
 summary.to_csv(os.path.join(OUT_DIR, 'pilot_Q2_summary_%s.csv' % tag), index=False)
+landcover.to_csv(os.path.join(OUT_DIR, 'pilot_Q2_unexplained_landcover_%s.csv' % tag), index=False)
 
 pd.set_option('display.width', 200)
 print('\nrules: min patch %d cells (%.2f ha) | connectivity %d | min share %.0f%%'
       % (MIN_PATCH_CELLS, MIN_PATCH_CELLS * CELL_HA, CONNECTIVITY, 100 * MIN_SHARE))
 print(summary[['pair', 'direction', 'label', 'patches', 'area_ha', 'percent', 'mean_lia_deg']].to_string(index=False))
-print('\nsaved 2 tables to', OUT_DIR)
+print('\nLand cover inside the unexplained patches (description only, not a label):')
+print(landcover[['pair', 'direction', 'class_name', 'area_ha', 'percent_of_unexplained']].to_string(index=False))
+print('\nsaved 3 tables to', OUT_DIR)
 print('code version: %(git_commit)s | run: %(run_utc)s' % STAMP)
