@@ -1,36 +1,36 @@
 event,aoi,pair,direction,worldcover_class,class_name,area_ha,percent_of_unexplained,git_commit,run_utc
-EMSR866_pilot,AOI01,EMS vs GFM,EMS only,10,tree cover,243.28,1.4,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,EMS vs GFM,EMS only,30,grassland,10953.6,63.1,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,EMS vs GFM,EMS only,40,cropland,3600.0,20.74,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,EMS vs GFM,EMS only,50,built-up,25.32,0.15,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,EMS vs GFM,EMS only,60,bare / sparse vegetation,12.76,0.07,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,EMS vs GFM,EMS only,80,permanent water bodies,642.24,3.7,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,EMS vs GFM,EMS only,90,herbaceous wetland,1882.88,10.85,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,EMS vs GFM,GFM only,10,tree cover,0.08,0.92,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,EMS vs GFM,GFM only,30,grassland,2.6,29.82,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,EMS vs GFM,GFM only,40,cropland,2.84,32.57,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,EMS vs GFM,GFM only,90,herbaceous wetland,3.2,36.7,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,EMS vs Baseline,EMS only,10,tree cover,575.2,2.78,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,EMS vs Baseline,EMS only,30,grassland,11884.24,57.5,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,EMS vs Baseline,EMS only,40,cropland,4869.88,23.56,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,EMS vs Baseline,EMS only,50,built-up,30.48,0.15,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,EMS vs Baseline,EMS only,60,bare / sparse vegetation,16.76,0.08,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,EMS vs Baseline,EMS only,80,permanent water bodies,961.8,4.65,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,EMS vs Baseline,EMS only,90,herbaceous wetland,2329.52,11.27,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,EMS vs Baseline,Baseline only,30,grassland,4.16,30.59,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,EMS vs Baseline,Baseline only,40,cropland,2.72,20.0,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,EMS vs Baseline,Baseline only,50,built-up,0.2,1.47,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,EMS vs Baseline,Baseline only,60,bare / sparse vegetation,0.04,0.29,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,EMS vs Baseline,Baseline only,80,permanent water bodies,1.84,13.53,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,EMS vs Baseline,Baseline only,90,herbaceous wetland,4.64,34.12,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,GFM vs Baseline,GFM only,10,tree cover,19.12,1.42,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,GFM vs Baseline,GFM only,30,grassland,489.76,36.48,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,GFM vs Baseline,GFM only,40,cropland,815.76,60.77,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,GFM vs Baseline,GFM only,60,bare / sparse vegetation,0.8,0.06,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,GFM vs Baseline,GFM only,80,permanent water bodies,2.52,0.19,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,GFM vs Baseline,GFM only,90,herbaceous wetland,14.4,1.07,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,GFM vs Baseline,Baseline only,30,grassland,90.16,58.61,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,GFM vs Baseline,Baseline only,40,cropland,52.12,33.88,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,GFM vs Baseline,Baseline only,60,bare / sparse vegetation,0.04,0.03,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,GFM vs Baseline,Baseline only,80,permanent water bodies,3.48,2.26,39a57049e0-dirty,2026-11-13T23:29:05Z
-EMSR866_pilot,AOI01,GFM vs Baseline,Baseline only,90,herbaceous wetland,8.04,5.23,39a57049e0-dirty,2026-11-13T23:29:05Z
+EMSR866_pilot,AOI01,EMS vs GFM,EMS only,10,tree cover,243.28,1.4,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,EMS vs GFM,EMS only,30,grassland,10953.6,63.1,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,EMS vs GFM,EMS only,40,cropland,3600.0,20.74,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,EMS vs GFM,EMS only,50,built-up,25.32,0.15,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,EMS vs GFM,EMS only,60,bare / sparse vegetation,12.76,0.07,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,EMS vs GFM,EMS only,80,permanent water bodies,642.24,3.7,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,EMS vs GFM,EMS only,90,herbaceous wetland,1882.88,10.85,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,EMS vs GFM,GFM only,10,tree cover,0.08,0.92,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,EMS vs GFM,GFM only,30,grassland,2.6,29.82,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,EMS vs GFM,GFM only,40,cropland,2.84,32.57,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,EMS vs GFM,GFM only,90,herbaceous wetland,3.2,36.7,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,EMS vs Baseline,EMS only,10,tree cover,575.2,2.78,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,EMS vs Baseline,EMS only,30,grassland,11884.24,57.5,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,EMS vs Baseline,EMS only,40,cropland,4869.88,23.56,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,EMS vs Baseline,EMS only,50,built-up,30.48,0.15,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,EMS vs Baseline,EMS only,60,bare / sparse vegetation,16.76,0.08,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,EMS vs Baseline,EMS only,80,permanent water bodies,961.8,4.65,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,EMS vs Baseline,EMS only,90,herbaceous wetland,2329.52,11.27,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,EMS vs Baseline,Baseline only,30,grassland,4.16,30.59,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,EMS vs Baseline,Baseline only,40,cropland,2.72,20.0,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,EMS vs Baseline,Baseline only,50,built-up,0.2,1.47,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,EMS vs Baseline,Baseline only,60,bare / sparse vegetation,0.04,0.29,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,EMS vs Baseline,Baseline only,80,permanent water bodies,1.84,13.53,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,EMS vs Baseline,Baseline only,90,herbaceous wetland,4.64,34.12,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,GFM vs Baseline,GFM only,10,tree cover,19.12,1.42,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,GFM vs Baseline,GFM only,30,grassland,489.76,36.48,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,GFM vs Baseline,GFM only,40,cropland,815.76,60.77,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,GFM vs Baseline,GFM only,60,bare / sparse vegetation,0.8,0.06,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,GFM vs Baseline,GFM only,80,permanent water bodies,2.52,0.19,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,GFM vs Baseline,GFM only,90,herbaceous wetland,14.4,1.07,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,GFM vs Baseline,Baseline only,30,grassland,90.16,58.61,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,GFM vs Baseline,Baseline only,40,cropland,52.12,33.88,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,GFM vs Baseline,Baseline only,60,bare / sparse vegetation,0.04,0.03,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,GFM vs Baseline,Baseline only,80,permanent water bodies,3.48,2.26,a7aa1fe976,2026-11-13T23:31:09Z
+EMSR866_pilot,AOI01,GFM vs Baseline,Baseline only,90,herbaceous wetland,8.04,5.23,a7aa1fe976,2026-11-13T23:31:09Z
