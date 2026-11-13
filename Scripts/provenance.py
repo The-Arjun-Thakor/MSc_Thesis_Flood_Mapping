@@ -1,8 +1,8 @@
 """Record which code produced a result: the git commit of the repository and the time of the run.
 
 Every script writes these two values into its outputs (CSV columns or GeoTIFF tags), so each number in
-the thesis can be traced back to the exact version of the code. If files tracked by git were changed but
-not committed when the script ran, the commit id ends with '-dirty'.
+the thesis can be traced back to the exact version of the code. If code files (Scripts/, config.py) were changed or added
+but not committed when the script ran, the commit id ends with '-dirty'.
 """
 import datetime, os, subprocess
 
@@ -16,7 +16,7 @@ def _git(*args):
 def git_commit():
     try:
         commit = _git('rev-parse', '--short=10', 'HEAD')
-        dirty = _git('status', '--porcelain', '--untracked-files=no')
+        dirty = _git('status', '--porcelain', '--', 'Scripts', 'config.py')   # changed or new code files
         return commit + ('-dirty' if dirty else '')
     except Exception:
         return 'unknown'
