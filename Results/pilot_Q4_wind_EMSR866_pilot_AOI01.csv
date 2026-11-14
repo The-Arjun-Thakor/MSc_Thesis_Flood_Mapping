@@ -1,0 +1,2 @@
+event,aoi,acquisition_utc,era5_hour_utc,era5_cells,wind_mean_ms,wind_min_ms,wind_max_ms,wind_limit_ms,wind_label,era5_file,git_commit,run_utc
+EMSR866_pilot,AOI01,2026-02-12T17:55Z,2026-02-12T18:00Z,18,7.49,6.69,10.43,3.3,windy,ERA5_wind10m_EMSR866_pilot_AOI01_20260212T1800Z.nc,cf703451e9,2026-11-13T23:59:21Z
