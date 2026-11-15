@@ -1,0 +1,2 @@
+event,aoi,era5_hour_utc,wind_mean_ms,wind_label,aoi_with_flag_data_ha,rough_flag_ha,rough_flag_share,flag_value_1_ha,flag_value_2_ha,flag_value_3_ha,both_flood_ha,both_flood_rough_flag_share,ems_only_ha,ems_only_rough_flag_share,gfm_only_ha,gfm_only_rough_flag_share,both_dry_ha,both_dry_rough_flag_share,git_commit,run_utc
+EMSR866_pilot,AOI01,2026-02-12T18:00Z,7.49,windy,527792.6,29480.92,0.0559,0.0,29480.92,0.0,2570.84,0.019,17731.28,0.12,86.64,0.0199,245454.88,0.0724,2e0f4a2007,2026-11-15T18:34:09Z
