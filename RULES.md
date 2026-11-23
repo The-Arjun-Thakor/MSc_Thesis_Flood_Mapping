@@ -88,4 +88,12 @@ before any main-study data was processed.
 
 ## Changes after the lock
 
-(none)
+Clarifications of how existing rules are applied, written down on 23 November 2026 after the scene
+search (`Scripts/10_find_s1_scenes.py`) and before any main-study image was processed:
+
+- Rule 7: for some AOIs the EMS image was taken before the activation's event time. The pre-flood search
+  therefore ends at the earlier of the event time and one hour before the post-flood pass, so that the
+  post-flood image can never be chosen as the pre-flood image.
+- Rule 8: where the Sentinel-1 frames do not cover the whole AOI (three AOIs of EMSR861 on
+  23 November 2026), the uncovered part has no baseline data and falls out of the comparison area under
+  the existing no-data rule. The covered share is reported per AOI in `Results/main_s1_scenes.csv`.
