@@ -1,0 +1,121 @@
+pair,direction,label,grouping,group,measure,n,median,min,max,total_area_ha,total_pct,git_commit,run_utc
+EMS vs Baseline,Baseline only,built-up/tree cover,all,all AOIs,percent,36.0,0.0,0.0,3.69,26.08,0.3298,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,Baseline only,layover/shadow,all,all AOIs,percent,36.0,0.0,0.0,0.0,0.0,0.0,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,Baseline only,small patches,all,all AOIs,percent,36.0,7.545,0.0,100.0,789.92,9.9898,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,Baseline only,unexplained,all,all AOIs,percent,36.0,92.455,0.0,100.0,7091.28,89.6804,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,EMS only,built-up/tree cover,all,all AOIs,percent,36.0,0.075,0.0,7.14,348.08,1.0774,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,EMS only,layover/shadow,all,all AOIs,percent,36.0,0.0,0.0,0.52,6.92,0.0214,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,EMS only,small patches,all,all AOIs,percent,36.0,11.57,2.32,91.27,2759.92,8.5424,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,EMS only,unexplained,all,all AOIs,percent,36.0,85.485,8.73,97.68,29193.56,90.3588,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,EMS only,built-up/tree cover,all,all AOIs,percent,36.0,0.0,0.0,6.0,165.68,0.7898,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,EMS only,layover/shadow,all,all AOIs,percent,36.0,0.0,0.0,0.0,0.0,0.0,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,EMS only,small patches,all,all AOIs,percent,36.0,20.735,1.09,74.6,3203.36,15.2707,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,EMS only,unexplained,all,all AOIs,percent,36.0,78.85,25.4,98.91,17608.12,83.9395,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,GFM only,built-up/tree cover,all,all AOIs,percent,34.0,0.0,0.0,2.04,8.2,0.1892,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,GFM only,layover/shadow,all,all AOIs,percent,34.0,0.0,0.0,0.0,0.0,0.0,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,GFM only,small patches,all,all AOIs,percent,34.0,58.4,9.2,100.0,1837.16,42.3828,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,GFM only,unexplained,all,all AOIs,percent,34.0,41.38,0.0,90.8,2489.32,57.428,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,Baseline only,built-up/tree cover,all,all AOIs,percent,36.0,0.0,0.0,4.07,9.16,0.1214,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,Baseline only,layover/shadow,all,all AOIs,percent,36.0,0.0,0.0,0.0,0.0,0.0,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,Baseline only,small patches,all,all AOIs,percent,36.0,20.46,3.29,75.76,920.6,12.1962,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,Baseline only,unexplained,all,all AOIs,percent,36.0,79.54,24.24,96.71,6618.52,87.6825,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,GFM only,built-up/tree cover,all,all AOIs,percent,36.0,0.0,0.0,3.22,46.88,0.3203,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,GFM only,layover/shadow,all,all AOIs,percent,36.0,0.0,0.0,0.0,0.0,0.0,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,GFM only,small patches,all,all AOIs,percent,36.0,49.255,6.5,100.0,3370.68,23.0282,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,GFM only,unexplained,all,all AOIs,percent,36.0,49.6,0.0,93.5,11219.64,76.6515,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,Baseline only,built-up/tree cover,mechanism,Flash,percent,3.0,0.73,0.0,2.98,4.92,0.7976,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,Baseline only,layover/shadow,mechanism,Flash,percent,3.0,0.0,0.0,0.0,0.0,0.0,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,Baseline only,small patches,mechanism,Flash,percent,3.0,7.23,0.74,19.04,112.4,18.2207,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,Baseline only,unexplained,mechanism,Flash,percent,3.0,92.77,80.23,96.28,499.56,80.9817,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,EMS only,built-up/tree cover,mechanism,Flash,percent,3.0,0.0,0.0,3.46,3.04,1.0612,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,EMS only,layover/shadow,mechanism,Flash,percent,3.0,0.0,0.0,0.0,0.0,0.0,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,EMS only,small patches,mechanism,Flash,percent,3.0,24.45,18.54,63.35,96.56,33.7057,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,EMS only,unexplained,mechanism,Flash,percent,3.0,75.55,33.18,81.46,186.88,65.2332,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,EMS only,built-up/tree cover,mechanism,Flash,percent,3.0,0.0,0.0,1.0,1.4,0.417,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,EMS only,layover/shadow,mechanism,Flash,percent,3.0,0.0,0.0,0.0,0.0,0.0,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,EMS only,small patches,mechanism,Flash,percent,3.0,23.58,15.61,26.43,68.72,20.467,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,EMS only,unexplained,mechanism,Flash,percent,3.0,75.41,73.57,84.39,265.64,79.116,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,GFM only,built-up/tree cover,mechanism,Flash,percent,3.0,0.0,0.0,0.25,2.24,0.2449,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,GFM only,layover/shadow,mechanism,Flash,percent,3.0,0.0,0.0,0.0,0.0,0.0,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,GFM only,small patches,mechanism,Flash,percent,3.0,23.47,14.04,100.0,130.36,14.252,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,GFM only,unexplained,mechanism,Flash,percent,3.0,76.53,0.0,85.71,782.08,85.5031,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,Baseline only,built-up/tree cover,mechanism,Flash,percent,3.0,0.0,0.0,0.36,0.8,0.2822,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,Baseline only,layover/shadow,mechanism,Flash,percent,3.0,0.0,0.0,0.0,0.0,0.0,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,Baseline only,small patches,mechanism,Flash,percent,3.0,14.17,6.81,33.7,40.52,14.2938,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,Baseline only,unexplained,mechanism,Flash,percent,3.0,85.47,66.3,93.19,242.16,85.424,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,GFM only,built-up/tree cover,mechanism,Flash,percent,3.0,0.0,0.0,2.13,10.6,1.9225,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,GFM only,layover/shadow,mechanism,Flash,percent,3.0,0.0,0.0,0.0,0.0,0.0,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,GFM only,small patches,mechanism,Flash,percent,3.0,56.57,37.49,78.89,220.76,40.0392,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,GFM only,unexplained,mechanism,Flash,percent,3.0,43.43,21.11,60.39,320.0,58.0383,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,Baseline only,built-up/tree cover,mechanism,River,percent,33.0,0.0,0.0,3.69,21.16,0.2902,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,Baseline only,layover/shadow,mechanism,River,percent,33.0,0.0,0.0,0.0,0.0,0.0,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,Baseline only,small patches,mechanism,River,percent,33.0,7.86,0.0,100.0,677.52,9.2933,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,Baseline only,unexplained,mechanism,River,percent,33.0,92.14,0.0,100.0,6591.72,90.4164,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,EMS only,built-up/tree cover,mechanism,River,percent,33.0,0.15,0.0,7.14,345.04,1.0775,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,EMS only,layover/shadow,mechanism,River,percent,33.0,0.0,0.0,0.52,6.92,0.0216,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,EMS only,small patches,mechanism,River,percent,33.0,10.94,2.32,91.27,2663.36,8.3173,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,EMS only,unexplained,mechanism,River,percent,33.0,87.92,8.73,97.68,29006.68,90.5836,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,EMS only,built-up/tree cover,mechanism,River,percent,33.0,0.0,0.0,6.0,164.28,0.7959,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,EMS only,layover/shadow,mechanism,River,percent,33.0,0.0,0.0,0.0,0.0,0.0,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,EMS only,small patches,mechanism,River,percent,33.0,20.55,1.09,74.6,3134.64,15.1862,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,EMS only,unexplained,mechanism,River,percent,33.0,79.08,25.4,98.91,17342.48,84.0179,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,GFM only,built-up/tree cover,mechanism,River,percent,31.0,0.0,0.0,2.04,5.96,0.1743,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,GFM only,layover/shadow,mechanism,River,percent,31.0,0.0,0.0,0.0,0.0,0.0,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,GFM only,small patches,mechanism,River,percent,31.0,58.58,9.2,100.0,1706.8,49.9064,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,GFM only,unexplained,mechanism,River,percent,31.0,41.34,0.0,90.8,1707.24,49.9193,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,Baseline only,built-up/tree cover,mechanism,River,percent,33.0,0.0,0.0,4.07,8.36,0.1151,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,Baseline only,layover/shadow,mechanism,River,percent,33.0,0.0,0.0,0.0,0.0,0.0,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,Baseline only,small patches,mechanism,River,percent,33.0,20.8,3.29,75.76,880.08,12.1143,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,Baseline only,unexplained,mechanism,River,percent,33.0,79.2,24.24,96.71,6376.36,87.7706,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,GFM only,built-up/tree cover,mechanism,River,percent,33.0,0.0,0.0,3.22,36.28,0.2576,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,GFM only,layover/shadow,mechanism,River,percent,33.0,0.0,0.0,0.0,0.0,0.0,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,GFM only,small patches,mechanism,River,percent,33.0,49.24,6.5,100.0,3149.92,22.3623,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,GFM only,unexplained,mechanism,River,percent,33.0,50.73,0.0,93.5,10899.64,77.3801,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,Baseline only,built-up/tree cover,wind_label,calm,percent,14.0,0.0,0.0,0.73,4.28,0.2172,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,Baseline only,layover/shadow,wind_label,calm,percent,14.0,0.0,0.0,0.0,0.0,0.0,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,Baseline only,small patches,wind_label,calm,percent,14.0,15.205,0.8,100.0,295.2,14.979,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,Baseline only,unexplained,wind_label,calm,percent,14.0,84.43,0.0,99.2,1671.28,84.8038,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,EMS only,built-up/tree cover,wind_label,calm,percent,14.0,0.0,0.0,7.14,69.6,1.1057,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,EMS only,layover/shadow,wind_label,calm,percent,14.0,0.0,0.0,0.0,0.0,0.0,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,EMS only,small patches,wind_label,calm,percent,14.0,11.75,7.35,91.27,925.92,14.7094,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,EMS only,unexplained,wind_label,calm,percent,14.0,84.515,8.73,92.65,5299.24,84.1849,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,EMS only,built-up/tree cover,wind_label,calm,percent,14.0,0.0,0.0,6.0,18.44,0.4442,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,EMS only,layover/shadow,wind_label,calm,percent,14.0,0.0,0.0,0.0,0.0,0.0,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,EMS only,small patches,wind_label,calm,percent,14.0,23.875,10.62,42.38,1038.32,25.0123,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,EMS only,unexplained,wind_label,calm,percent,14.0,75.72,55.18,89.38,3094.48,74.5435,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,GFM only,built-up/tree cover,wind_label,calm,percent,14.0,0.0,0.0,0.35,2.96,0.1799,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,GFM only,layover/shadow,wind_label,calm,percent,14.0,0.0,0.0,0.0,0.0,0.0,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,GFM only,small patches,wind_label,calm,percent,14.0,55.235,14.04,100.0,591.52,35.9604,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,GFM only,unexplained,wind_label,calm,percent,14.0,44.765,0.0,85.71,1050.44,63.8596,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,Baseline only,built-up/tree cover,wind_label,calm,percent,14.0,0.0,0.0,4.07,3.12,0.149,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,Baseline only,layover/shadow,wind_label,calm,percent,14.0,0.0,0.0,0.0,0.0,0.0,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,Baseline only,small patches,wind_label,calm,percent,14.0,16.92,3.29,36.5,238.16,11.3711,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,Baseline only,unexplained,wind_label,calm,percent,14.0,83.005,63.5,96.71,1853.16,88.48,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,GFM only,built-up/tree cover,wind_label,calm,percent,14.0,0.0,0.0,2.13,16.52,0.4568,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,GFM only,layover/shadow,wind_label,calm,percent,14.0,0.0,0.0,0.0,0.0,0.0,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,GFM only,small patches,wind_label,calm,percent,14.0,50.385,27.57,88.59,1301.36,35.9854,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,GFM only,unexplained,wind_label,calm,percent,14.0,49.615,11.41,72.32,2298.48,63.5578,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,Baseline only,built-up/tree cover,wind_label,windy,percent,22.0,0.0,0.0,3.69,21.8,0.3672,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,Baseline only,layover/shadow,wind_label,windy,percent,22.0,0.0,0.0,0.0,0.0,0.0,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,Baseline only,small patches,wind_label,windy,percent,22.0,4.975,0.0,84.67,494.72,8.3335,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,Baseline only,unexplained,wind_label,windy,percent,22.0,94.71,15.33,100.0,5420.0,91.2993,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,EMS only,built-up/tree cover,wind_label,windy,percent,22.0,0.265,0.0,5.19,278.48,1.0705,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,EMS only,layover/shadow,wind_label,windy,percent,22.0,0.0,0.0,0.52,6.92,0.0266,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,EMS only,small patches,wind_label,windy,percent,22.0,10.48,2.32,43.55,1834.0,7.0501,31ae686a83,2026-11-24T20:07:41Z
+EMS vs Baseline,EMS only,unexplained,wind_label,windy,percent,22.0,86.705,56.45,97.68,23894.32,91.8528,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,EMS only,built-up/tree cover,wind_label,windy,percent,22.0,0.0,0.0,4.07,147.24,0.8751,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,EMS only,layover/shadow,wind_label,windy,percent,22.0,0.0,0.0,0.0,0.0,0.0,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,EMS only,small patches,wind_label,windy,percent,22.0,20.015,1.09,74.6,2165.04,12.8673,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,EMS only,unexplained,wind_label,windy,percent,22.0,79.185,25.4,98.91,14513.64,86.2576,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,GFM only,built-up/tree cover,wind_label,windy,percent,20.0,0.0,0.0,2.04,5.24,0.1948,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,GFM only,layover/shadow,wind_label,windy,percent,20.0,0.0,0.0,0.0,0.0,0.0,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,GFM only,small patches,wind_label,windy,percent,20.0,59.925,9.2,100.0,1245.64,46.3105,31ae686a83,2026-11-24T20:07:41Z
+EMS vs GFM,GFM only,unexplained,wind_label,windy,percent,20.0,38.835,0.0,90.8,1438.88,53.4947,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,Baseline only,built-up/tree cover,wind_label,windy,percent,22.0,0.0,0.0,2.26,6.04,0.1107,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,Baseline only,layover/shadow,wind_label,windy,percent,22.0,0.0,0.0,0.0,0.0,0.0,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,Baseline only,small patches,wind_label,windy,percent,22.0,27.815,5.21,75.76,682.44,12.513,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,Baseline only,unexplained,wind_label,windy,percent,22.0,71.055,24.24,94.79,4765.36,87.3762,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,GFM only,built-up/tree cover,wind_label,windy,percent,22.0,0.0,0.0,3.22,30.36,0.2755,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,GFM only,layover/shadow,wind_label,windy,percent,22.0,0.0,0.0,0.0,0.0,0.0,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,GFM only,small patches,wind_label,windy,percent,22.0,49.05,6.5,100.0,2069.32,18.7764,31ae686a83,2026-11-24T20:07:41Z
+GFM vs Baseline,GFM only,unexplained,wind_label,windy,percent,22.0,49.34,0.0,93.5,8921.16,80.9481,31ae686a83,2026-11-24T20:07:41Z

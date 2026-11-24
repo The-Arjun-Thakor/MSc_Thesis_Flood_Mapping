@@ -1,0 +1,16 @@
+grouping,group,measure,n,median,min,max,aois_with_any_flag,git_commit,run_utc
+all,all AOIs,rough_flag_share,36.0,0.0,0.0,0.9152,17,31ae686a83,2026-11-24T20:07:41Z
+all,all AOIs,both_flood_rough_flag_share,36.0,0.0,0.0,0.9671,17,31ae686a83,2026-11-24T20:07:41Z
+all,all AOIs,ems_only_rough_flag_share,36.0,0.0,0.0,0.985,17,31ae686a83,2026-11-24T20:07:41Z
+all,all AOIs,gfm_only_rough_flag_share,34.0,0.0,0.0,0.9707,17,31ae686a83,2026-11-24T20:07:41Z
+all,all AOIs,both_dry_rough_flag_share,36.0,0.0,0.0,0.9159,17,31ae686a83,2026-11-24T20:07:41Z
+wind_label,calm,rough_flag_share,14.0,0.0,0.0,0.9152,4,31ae686a83,2026-11-24T20:07:41Z
+wind_label,calm,both_flood_rough_flag_share,14.0,0.0,0.0,0.9671,4,31ae686a83,2026-11-24T20:07:41Z
+wind_label,calm,ems_only_rough_flag_share,14.0,0.0,0.0,0.985,4,31ae686a83,2026-11-24T20:07:41Z
+wind_label,calm,gfm_only_rough_flag_share,14.0,0.0,0.0,0.9707,4,31ae686a83,2026-11-24T20:07:41Z
+wind_label,calm,both_dry_rough_flag_share,14.0,0.0,0.0,0.9159,4,31ae686a83,2026-11-24T20:07:41Z
+wind_label,windy,rough_flag_share,22.0,0.0201,0.0,0.4326,13,31ae686a83,2026-11-24T20:07:41Z
+wind_label,windy,both_flood_rough_flag_share,22.0,0.0,0.0,0.3261,13,31ae686a83,2026-11-24T20:07:41Z
+wind_label,windy,ems_only_rough_flag_share,22.0,0.0,0.0,0.5703,13,31ae686a83,2026-11-24T20:07:41Z
+wind_label,windy,gfm_only_rough_flag_share,20.0,0.0536,0.0,0.8475,13,31ae686a83,2026-11-24T20:07:41Z
+wind_label,windy,both_dry_rough_flag_share,22.0,0.018,0.0,0.3518,13,31ae686a83,2026-11-24T20:07:41Z
