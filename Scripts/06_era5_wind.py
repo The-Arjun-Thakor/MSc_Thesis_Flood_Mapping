@@ -11,9 +11,10 @@ Usage:  python Scripts/06_era5_wind.py                         (pilot: EMSR866 A
         python Scripts/06_era5_wind.py --event EMSR788 --aoi AOI01
         python Scripts/06_era5_wind.py --all                    (all main-study AOIs)
 The acquisition time is the EMS time for the pilot and the start of the post-flood pass for the main study.
-Main study: to keep the number of Climate Data Store requests small, one file is requested per month for
-all AOIs of that month (their days and hours, over a box around all of them). Each AOI then reads its own
-hour and its own cells from that file; the ERA5 values are the same as with one request per AOI.
+Main study: the Climate Data Store handles requests one at a time and can queue each for a long time, so
+all AOIs are served by one single request (every hour any AOI needs, over a box around all AOIs). Each AOI
+then reads its own hour and its own cells from that file; the ERA5 values are the same as with one request
+per AOI.
 """
 import datetime, os, sys
 import numpy as np
@@ -59,64 +60,41 @@ def download(nc_path, hour, north, west, south, east, days=None, hours=None):
     cdsapi.Client().retrieve('reanalysis-era5-single-levels', request, nc_path)
 
 
-_MONTH_DONE = {}
+_ALL_FILE = []
 
 
-def month_request(key):
-    """Request of one month for all main-study AOIs of that month: file path and download arguments."""
-    group = [a for a in aoi_paths.main_aois() if nearest_hour(a.acquisition_utc.to_pydatetime()).strftime('%Y%m') == key]
-    hours_needed = sorted({nearest_hour(a.acquisition_utc.to_pydatetime()) for a in group})
-    bounds = np.array([gpd.read_file(a.ems_aoi).to_crs(4326).total_bounds for a in group])
-    north, west, south, east = era5_box(bounds[:, 0].min(), bounds[:, 1].min(), bounds[:, 2].max(), bounds[:, 3].max())
-    nc_path = os.path.join(ERA5_DIR, 'ERA5_wind10m_main_%s.nc' % key)
-    return nc_path, len(group), (hours_needed[0], north, west, south, east,
-                                 sorted({h.day for h in hours_needed}), sorted({h.hour for h in hours_needed}))
+def all_file():
+    """One ERA5 file for all main-study AOIs, downloaded with a single Climate Data Store request.
 
-
-def month_file(hour):
-    """ERA5 file of one month for all main-study AOIs of that month (downloaded once)."""
-    key = hour.strftime('%Y%m')
-    if key in _MONTH_DONE:
-        return _MONTH_DONE[key]
-    nc_path, n, args = month_request(key)
-    if not os.path.exists(nc_path):
-        print('one request for %d AOIs of %s (%d hours)' % (n, key, len(args[6])))
-        download(nc_path, *args[:5], days=args[5], hours=args[6])
-    else:
+    The Climate Data Store queues requests one after the other and rejects parallel ones, so a single
+    request is the fastest way. It asks for every year, month, day and hour that any AOI needs (the
+    request is a cross product, so it also holds hours no AOI uses), over one box around all AOIs.
+    Each AOI then reads only its own hour and its own cells."""
+    if _ALL_FILE:
+        return _ALL_FILE[0]
+    nc_path = os.path.join(ERA5_DIR, 'ERA5_wind10m_main_all.nc')
+    aois = aoi_paths.main_aois()
+    hours_needed = sorted({nearest_hour(a.acquisition_utc.to_pydatetime()) for a in aois})
+    if os.path.exists(nc_path):
         print('using the ERA5 file already downloaded:', nc_path)
-    _MONTH_DONE[key] = nc_path
-    return nc_path
-
-
-def prefetch(aois):
-    """Send the requests of all months that are still missing at the same time, so they wait in the
-    Climate Data Store queue in parallel instead of one after the other."""
-    from concurrent.futures import ThreadPoolExecutor, as_completed
-    keys = sorted({nearest_hour(a.acquisition_utc.to_pydatetime()).strftime('%Y%m') for a in aois if not a.pilot})
-    todo = []
-    for k in keys:
-        nc_path, n, args = month_request(k)
-        if not os.path.exists(nc_path):
-            todo.append((k, nc_path, n, args))
-    if not todo:
-        return
-    print('sending %d monthly ERA5 requests at the same time: %s' % (len(todo), ', '.join(t[0] for t in todo)))
-    os.makedirs(ERA5_DIR, exist_ok=True)
-
-    def get(t):
-        k, nc_path, n, args = t
-        download(nc_path + '.part', *args[:5], days=args[5], hours=args[6])
+    else:
+        bounds = np.array([gpd.read_file(a.ems_aoi).to_crs(4326).total_bounds for a in aois])
+        north, west, south, east = era5_box(bounds[:, 0].min(), bounds[:, 1].min(), bounds[:, 2].max(), bounds[:, 3].max())
+        import cdsapi
+        request = {'product_type': ['reanalysis'],
+                   'variable': ['10m_u_component_of_wind', '10m_v_component_of_wind'],
+                   'year': sorted({'%04d' % h.year for h in hours_needed}),
+                   'month': sorted({'%02d' % h.month for h in hours_needed}),
+                   'day': sorted({'%02d' % h.day for h in hours_needed}),
+                   'time': sorted({'%02d:00' % h.hour for h in hours_needed}),
+                   'area': [float(north), float(west), float(south), float(east)],
+                   'data_format': 'netcdf', 'download_format': 'unarchived'}
+        print('one request for all %d main-study AOIs (%d hours needed):' % (len(aois), len(hours_needed)), request)
+        os.makedirs(ERA5_DIR, exist_ok=True)
+        cdsapi.Client().retrieve('reanalysis-era5-single-levels', request, nc_path + '.part')
         os.replace(nc_path + '.part', nc_path)
-        return k, n
-
-    with ThreadPoolExecutor(max_workers=len(todo)) as ex:
-        futures = [ex.submit(get, t) for t in todo]
-        for f in as_completed(futures):
-            try:
-                k, n = f.result()
-                print('>>> ERA5 file for %s arrived (%d AOIs)' % (k, n))
-            except Exception as e:
-                print('>>> an ERA5 request failed: %s' % e)
+    _ALL_FILE.append(nc_path)
+    return nc_path
 
 
 def process(area):
@@ -137,7 +115,7 @@ def process(area):
         else:
             download(nc_path, hour, north, west, south, east)
     else:
-        nc_path = month_file(hour)
+        nc_path = all_file()
 
     ds = xr.open_dataset(nc_path)
     tname = 'valid_time' if 'valid_time' in ds.dims else ('time' if 'time' in ds.dims else None)
@@ -196,8 +174,6 @@ def process(area):
 
 def main():
     aois = aoi_paths.from_args(__doc__)
-    if len(aois) > 1:
-        prefetch(aois)
     for a in aois:
         process(a)
     print('\ncode version: %(git_commit)s | run: %(run_utc)s' % STAMP)
