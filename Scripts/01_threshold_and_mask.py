@@ -4,29 +4,31 @@ A pixel is flooded if its VV sigma0 is below THRESHOLD_DB after the flood and at
 before it. Flooded patches smaller than MIN_PATCH_HA are removed. Output: one GeoTIFF on the 10 m SNAP grid
 with 1 = flooded, 0 = not flooded, 255 = no data.
 
-Usage:  python Scripts/01_threshold_and_mask.py            (pilot: EMSR866 AOI01)
+The pre- and post-flood images lie on the same standard 10 m grid (RULES.md, rule 19) but may cover
+slightly different areas; only the area both cover is used.
+
+Usage:  python Scripts/01_threshold_and_mask.py                         (pilot: EMSR866 AOI01)
+        python Scripts/01_threshold_and_mask.py --event EMSR788 --aoi AOI01
+        python Scripts/01_threshold_and_mask.py --all                    (all main-study AOIs)
 """
 import os, sys
 import numpy as np
 import rasterio
+from rasterio.transform import Affine
 from rasterio.windows import Window
 from scipy import ndimage
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')))
-from config import DATA_ROOT
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import aoi_paths
 import provenance
+
+STAMP = provenance.stamp()
 
 # ---- fixed rules (locked in git after the pilot) ----
 THRESHOLD_DB = -16.5      # UN-SPIDER tutorial threshold, applied to VV sigma0 in dB
 MIN_PATCH_HA = 0.5        # flooded patches smaller than this are removed
 CONNECTIVITY = 8          # pixels touching by an edge or a corner belong to the same patch
 NODATA = 255
-
-# ---- inputs / output (pilot) ----
-BASE = os.path.join(DATA_ROOT, '02_snap_out', 'EMSR866_pilot', 'AOI01')
-POST = os.path.join(BASE, 'S1_20260212_TC.data', 'Sigma0_VV.img')
-PRE = os.path.join(BASE, 'S1_20260131_TC.data', 'Sigma0_VV.img')
-OUT = os.path.join(BASE, 'baseline_flood_10m.tif')
 
 
 def to_db(lin):
@@ -37,43 +39,56 @@ def to_db(lin):
     return out
 
 
-def main():
-    with rasterio.open(POST) as post, rasterio.open(PRE) as pre:
-        # 1. the two images must sit on the same pixel grid (same pixel size, same upper-left corner)
+def common_area(tp, tq, wp, hp, wq, hq):
+    """Pixel offsets of the area covered by both images. Stops if the grids are not the same."""
+    if abs(tp.a - tq.a) > 1e-6 or abs(tp.e - tq.e) > 1e-6:
+        sys.exit('ERROR: pre and post image have different pixel sizes')
+    dx = (tq.c - tp.c) / tp.a                  # column of the pre image's left edge in the post image
+    dy = (tq.f - tp.f) / tp.e                  # row of the pre image's top edge in the post image
+    if abs(dx - round(dx)) > 1e-3 or abs(dy - round(dy)) > 1e-3:
+        sys.exit('ERROR: pre and post image are not on the same pixel grid - check the SNAP graph '
+                 '(alignToStandardGrid) before going on.')
+    dx, dy = int(round(dx)), int(round(dy))
+    c0, r0 = max(0, dx), max(0, dy)                          # in post-image pixels
+    c1, r1 = min(wp, dx + wq), min(hp, dy + hq)
+    if c1 <= c0 or r1 <= r0:
+        sys.exit('ERROR: pre and post image do not overlap')
+    return c0, r0, c1 - c0, r1 - r0, c0 - dx, r0 - dy        # post col/row, width, height, pre col/row
+
+
+def process(a):
+    post_path = os.path.join(a.post_data, 'Sigma0_VV.img')
+    pre_path = os.path.join(a.pre_data, 'Sigma0_VV.img')
+    print('\n=== %s ===' % a)
+    with rasterio.open(post_path) as post, rasterio.open(pre_path) as pre:
         tp, tq = post.transform, pre.transform
-        same_grid = (abs(tp.a - tq.a) < 1e-6 and abs(tp.e - tq.e) < 1e-6 and
-                     abs(tp.c - tq.c) < 1e-3 and abs(tp.f - tq.f) < 1e-3)
         print('post: %d x %d px, origin %.2f %.2f' % (post.width, post.height, tp.c, tp.f))
         print('pre : %d x %d px, origin %.2f %.2f' % (pre.width, pre.height, tq.c, tq.f))
-        if not same_grid:
-            sys.exit('ERROR: pre and post image are not on the same grid - check the SNAP graph '
-                     '(alignToStandardGrid) before going on.')
-        # the images may differ by a row/column at the far edge: use the part both cover
-        W, H = min(post.width, pre.width), min(post.height, pre.height)
-        print('same grid: yes | common area %d x %d px' % (W, H))
+        pc, pr, W, H, qc, qr = common_area(tp, tq, post.width, post.height, pre.width, pre.height)
+        print('same grid: yes | common area %d x %d px (pre image offset %+d, %+d px)' % (W, H, qc - pc, qr - pr))
+        out_transform = tp * Affine.translation(pc, pr)
         px_area_m2 = abs(tp.a * tp.e)
         min_px = int(np.ceil(MIN_PATCH_HA * 10000.0 / px_area_m2))
 
-        # 2. threshold + pre-flood test, in blocks of rows to keep memory low
+        # threshold + pre-flood test, in blocks of rows to keep memory low
         flood = np.zeros((H, W), dtype=bool)
         valid = np.zeros((H, W), dtype=bool)
         n_post_low = n_both_low = 0
         for r0 in range(0, H, 2048):
-            win = Window(0, r0, W, min(2048, H - r0))
-            a = to_db(post.read(1, window=win))
-            b = to_db(pre.read(1, window=win))
-            ok = ~np.isnan(a) & ~np.isnan(b)
+            h = min(2048, H - r0)
+            b_post = to_db(post.read(1, window=Window(pc, pr + r0, W, h)))
+            b_pre = to_db(pre.read(1, window=Window(qc, qr + r0, W, h)))
+            ok = ~np.isnan(b_post) & ~np.isnan(b_pre)
             with np.errstate(invalid='ignore'):
-                post_low = ok & (a < THRESHOLD_DB)
-                pre_low = ok & (b < THRESHOLD_DB)
-            sl = slice(r0, r0 + win.height)
-            valid[sl] = ok
-            flood[sl] = post_low & ~pre_low
+                post_low = ok & (b_post < THRESHOLD_DB)
+                pre_low = ok & (b_pre < THRESHOLD_DB)
+            valid[r0:r0 + h] = ok
+            flood[r0:r0 + h] = post_low & ~pre_low
             n_post_low += int(post_low.sum()); n_both_low += int((post_low & pre_low).sum())
         profile = dict(driver='GTiff', height=H, width=W, count=1, dtype='uint8', crs=post.crs,
-                       transform=tp, nodata=NODATA, compress='deflate', tiled=True)
+                       transform=out_transform, nodata=NODATA, compress='deflate', tiled=True)
 
-    # 3. remove flooded patches smaller than MIN_PATCH_HA
+    # remove flooded patches smaller than MIN_PATCH_HA
     structure = np.ones((3, 3), dtype=bool) if CONNECTIVITY == 8 else None
     n_before = int(flood.sum())
     labels, n_patches = ndimage.label(flood, structure=structure)
@@ -84,25 +99,28 @@ def main():
     del labels
     n_after = int(flood.sum())
 
-    # 4. write
     out = np.where(valid, flood.astype(np.uint8), NODATA).astype(np.uint8)
-    stamp = provenance.stamp()
-    with rasterio.open(OUT, 'w', **profile) as dst:
+    with rasterio.open(a.baseline_10m, 'w', **profile) as dst:
         dst.write(out, 1)
         dst.update_tags(threshold_db=str(THRESHOLD_DB), min_patch_ha=str(MIN_PATCH_HA),
-                        connectivity=str(CONNECTIVITY), post=os.path.basename(os.path.dirname(POST)),
-                        pre=os.path.basename(os.path.dirname(PRE)), **stamp)
+                        connectivity=str(CONNECTIVITY), post=os.path.basename(a.post_data),
+                        pre=os.path.basename(a.pre_data), **STAMP)
 
     ha = px_area_m2 / 10000.0
-    print('\nrules: threshold %.1f dB | min patch %.1f ha = %d px | connectivity %d'
+    print('rules: threshold %.1f dB | min patch %.1f ha = %d px | connectivity %d'
           % (THRESHOLD_DB, MIN_PATCH_HA, min_px, CONNECTIVITY))
     print('valid pixels                         : %12d  (%.0f ha)' % (valid.sum(), valid.sum() * ha))
     print('post below threshold                 : %12d  (%.0f ha)' % (n_post_low, n_post_low * ha))
     print('  of these also below before (water) : %12d  (%.0f ha)' % (n_both_low, n_both_low * ha))
     print('flooded before patch filter          : %12d  (%.0f ha) in %d patches' % (n_before, n_before * ha, n_patches))
     print('flooded after patch filter           : %12d  (%.0f ha) in %d patches' % (n_after, n_after * ha, int(keep.sum())))
-    print('saved', OUT)
-    print('code version: %(git_commit)s | run: %(run_utc)s' % stamp)
+    print('saved', a.baseline_10m)
+
+
+def main():
+    for a in aoi_paths.from_args(__doc__):
+        process(a)
+    print('\ncode version: %(git_commit)s | run: %(run_utc)s' % STAMP)
 
 
 if __name__ == '__main__':

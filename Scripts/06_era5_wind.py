@@ -7,7 +7,10 @@
    each cell weighted by the area of the AOI that lies in it.
 3. Labels the AOI 'windy' if the area-average speed is above WIND_LIMIT_MS, otherwise 'calm'.
 
-Usage:  python Scripts/06_era5_wind.py            (pilot: EMSR866 AOI01)
+Usage:  python Scripts/06_era5_wind.py                         (pilot: EMSR866 AOI01)
+        python Scripts/06_era5_wind.py --event EMSR788 --aoi AOI01
+        python Scripts/06_era5_wind.py --all                    (all main-study AOIs)
+The acquisition time is the EMS time for the pilot and the start of the post-flood pass for the main study.
 """
 import datetime, os, sys
 import numpy as np
@@ -17,8 +20,8 @@ import xarray as xr
 from shapely.geometry import box
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
-sys.path.insert(0, REPO)
-from config import DATA_ROOT
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import aoi_paths
 import provenance
 
 STAMP = provenance.stamp()
@@ -27,12 +30,7 @@ STAMP = provenance.stamp()
 WIND_LIMIT_MS = 3.3       # upper limit of a light breeze (Beaufort 2); above it the AOI counts as windy
 ERA5_STEP = 0.25          # ERA5 grid spacing in degrees
 
-# ---- inputs / output (pilot) ----
-EVENT, AOI = 'EMSR866_pilot', 'AOI01'
-ACQUISITION_UTC = datetime.datetime(2026, 2, 12, 17, 55)      # Sentinel-1 acquisition used by EMS
-EMS_AOI = os.path.join(DATA_ROOT, '01_raw', EVENT, 'EMS', 'EMSR866_AOI01_DEL_PRODUCT_areaOfInterestA_v2.json')
-ERA5_DIR = os.path.join(DATA_ROOT, '01_raw', '_shared', 'ERA5')
-OUT_CSV = os.path.join(REPO, 'Results', 'pilot_Q4_wind_%s_%s.csv' % (EVENT, AOI))
+ERA5_DIR = aoi_paths.ERA5_DIR
 
 
 def nearest_hour(t):
@@ -51,9 +49,12 @@ def download(nc_path, hour, north, west, south, east):
     cdsapi.Client().retrieve('reanalysis-era5-single-levels', request, nc_path)
 
 
-def main():
+def process(area):
+    EVENT, AOI = area.event, area.aoi
+    ACQUISITION_UTC = area.acquisition_utc.to_pydatetime()
+    print('\n=== %s ===' % area)
     hour = nearest_hour(ACQUISITION_UTC)
-    aoi = gpd.read_file(EMS_AOI).to_crs(4326)
+    aoi = gpd.read_file(area.ems_aoi).to_crs(4326)
     shape = aoi.union_all() if hasattr(aoi, 'union_all') else aoi.unary_union
     xmin, ymin, xmax, ymax = shape.bounds
     # request box: the AOI bounding box, widened to whole ERA5 cells plus one cell around it
@@ -107,15 +108,19 @@ def main():
            'wind_max_ms': round(float(cells['speed'].max()), 2), 'wind_limit_ms': WIND_LIMIT_MS,
            'wind_label': label, 'era5_file': os.path.basename(nc_path)}
     row.update(STAMP)
-    os.makedirs(os.path.dirname(OUT_CSV), exist_ok=True)
-    pd.DataFrame([row]).to_csv(OUT_CSV, index=False)
+    OUT_CSV = aoi_paths.save_rows(area, 'Q4_wind', pd.DataFrame([row]))
 
     print('\nERA5 hour %s (acquisition %s)' % (row['era5_hour_utc'], row['acquisition_utc']))
     print(cells[['lat', 'lon', 'aoi_area_ha', 'u10', 'v10', 'speed']].round(2).to_string(index=False))
     print('\narea-average wind speed over the AOI: %.2f m/s (cells: min %.2f, max %.2f) -> %s (limit %.1f m/s)'
           % (mean_speed, row['wind_min_ms'], row['wind_max_ms'], label, WIND_LIMIT_MS))
     print('saved', OUT_CSV)
-    print('code version: %(git_commit)s | run: %(run_utc)s' % STAMP)
+
+
+def main():
+    for a in aoi_paths.from_args(__doc__):
+        process(a)
+    print('\ncode version: %(git_commit)s | run: %(run_utc)s' % STAMP)
 
 
 if __name__ == '__main__':

@@ -3,7 +3,8 @@
 Each frame is downloaded once from the Copernicus Data Space to <DATA_ROOT>/01_raw/_shared/S1/<name>.zip,
 checked against the MD5 checksum published in the catalogue, and recorded with its SHA-256 in
 <DATA_ROOT>/download_manifest.csv. Frames that are already there and complete are skipped, so the
-script can be stopped and started again at any time.
+script can be stopped and started again at any time. An interrupted frame is resumed from where it
+stopped (the partial file is kept as <name>.zip.part), and each frame is tried up to ATTEMPTS times.
 
 Login: a free Copernicus Data Space account. The user name and password are read from the environment
 variables CDSE_USER and CDSE_PASSWORD, or asked for when the script starts. They are never stored.
@@ -27,6 +28,7 @@ LIST_CSV = os.path.join(REPO, 'Results', 'main_s1_downloads.csv')
 OUT_DIR = os.path.join(DATA_ROOT, '01_raw', '_shared', 'S1')
 MANIFEST = os.path.join(DATA_ROOT, 'download_manifest.csv')
 CHUNK = 8 * 1024 * 1024
+ATTEMPTS = 6
 
 
 def token(user, password):
@@ -38,12 +40,12 @@ def token(user, password):
 
 
 def catalogue_md5(product_id):
+    """MD5 checksum and size in bytes published in the catalogue (None if not published)."""
     r = requests.get(CATALOGUE % product_id, timeout=60)
     r.raise_for_status()
-    for c in r.json().get('Checksum') or []:
-        if c.get('Algorithm', '').upper() == 'MD5':
-            return c['Value'].lower()
-    return None
+    meta = r.json()
+    md5 = next((c['Value'].lower() for c in meta.get('Checksum') or [] if c.get('Algorithm', '').upper() == 'MD5'), None)
+    return md5, meta.get('ContentLength')
 
 
 def in_manifest():
@@ -62,30 +64,50 @@ def add_to_manifest(row):
         w.writerow(row)
 
 
-def download(product_id, path, tok):
-    """Stream one product to path + '.part', following redirects with the login header kept."""
-    s = requests.Session()
-    s.headers['Authorization'] = 'Bearer ' + tok
+def resolve(s, product_id):
+    """Follow the redirects of the download URL by hand, keeping the login header."""
     url = DOWNLOAD % product_id
     r = s.get(url, allow_redirects=False, timeout=120)
     while r.status_code in (301, 302, 303, 307, 308):
         url = r.headers['Location']
         r = s.get(url, allow_redirects=False, timeout=120)
     r.close()
-    md5, sha = hashlib.md5(), hashlib.sha256()
-    done, t0 = 0, time.time()
-    with s.get(url, stream=True, timeout=300) as r:
-        if r.status_code != 200:
+    return url
+
+
+def download(product_id, path, tok, expected_size):
+    """Download one product to path + '.part', resuming a partial file if the server allows it."""
+    part = path + '.part'
+    s = requests.Session()
+    s.headers['Authorization'] = 'Bearer ' + tok
+    url = resolve(s, product_id)
+    have = os.path.getsize(part) if os.path.exists(part) else 0
+    headers = {'Range': 'bytes=%d-' % have} if have else {}
+    t0, done = time.time(), 0
+    with s.get(url, stream=True, timeout=(60, 120), headers=headers) as r:
+        if have and r.status_code == 206:
+            mode = 'ab'
+            print('    resuming at %.2f GB' % (have / 1e9))
+        elif r.status_code == 200:
+            mode, have = 'wb', 0
+        else:
             raise RuntimeError('download failed (%d): %s' % (r.status_code, r.text[:200]))
-        total = int(r.headers.get('Content-Length', 0))
-        with open(path + '.part', 'wb') as f:
+        total = have + int(r.headers.get('Content-Length', 0))
+        with open(part, mode) as f:
             for chunk in r.iter_content(CHUNK):
-                f.write(chunk); md5.update(chunk); sha.update(chunk); done += len(chunk)
+                f.write(chunk); done += len(chunk)
                 if total:
-                    print('\r    %5.1f%%  %.2f of %.2f GB  %.1f MB/s' % (100 * done / total, done / 1e9, total / 1e9,
-                          done / 1e6 / max(time.time() - t0, 1)), end='', flush=True)
+                    print('\r    %5.1f%%  %.2f of %.2f GB  %.1f MB/s   ' % (100 * (have + done) / total, (have + done) / 1e9,
+                          total / 1e9, done / 1e6 / max(time.time() - t0, 1)), end='', flush=True)
     print()
-    return done, md5.hexdigest(), sha.hexdigest()
+    size = os.path.getsize(part)
+    if expected_size and size != expected_size:
+        raise RuntimeError('incomplete: %d of %d bytes' % (size, expected_size))
+    md5, sha = hashlib.md5(), hashlib.sha256()
+    with open(part, 'rb') as f:
+        for chunk in iter(lambda: f.read(CHUNK), b''):
+            md5.update(chunk); sha.update(chunk)
+    return size, md5.hexdigest(), sha.hexdigest()
 
 
 def main():
@@ -117,10 +139,19 @@ def main():
         path = os.path.join(OUT_DIR, row['zip'])
         print('[%d/%d] %s' % (i, len(todo), row['name']))
         try:
-            expected = catalogue_md5(row['id'])
-            size, md5, sha = download(row['id'], path, token(user, password))   # fresh login per frame
+            expected, expected_size = catalogue_md5(row['id'])
+            for attempt in range(1, ATTEMPTS + 1):
+                try:
+                    size, md5, sha = download(row['id'], path, token(user, password), expected_size)  # fresh login
+                    break
+                except Exception as e:
+                    print('\n    attempt %d of %d failed: %s' % (attempt, ATTEMPTS, str(e)[:120]))
+                    if attempt == ATTEMPTS:
+                        raise
+                    time.sleep(15 * attempt)
             if expected and md5 != expected:
-                raise RuntimeError('MD5 mismatch (got %s, catalogue %s)' % (md5, expected))
+                os.remove(path + '.part')                    # a corrupt file must not be resumed
+                raise RuntimeError('MD5 mismatch (got %s, catalogue %s) - partial file deleted' % (md5, expected))
             os.replace(path + '.part', path)
             add_to_manifest({'file': row['zip'], 'relative_path': os.path.relpath(path, DATA_ROOT).replace('\\', '/'),
                              'bytes': size, 'sha256': sha,
@@ -128,9 +159,7 @@ def main():
             print('    ok, MD5 %s' % ('checked' if expected else 'not published - not checked'))
         except Exception as e:
             failed.append(row['name'])
-            print('    FAILED:', e)
-            if os.path.exists(path + '.part'):
-                os.remove(path + '.part')
+            print('    FAILED (partial file kept, it will be resumed next time):', e)
     print('\nfinished: %d downloaded, %d failed' % (len(todo) - len(failed), len(failed)))
     if failed:
         print('run the script again to retry:\n  ' + '\n  '.join(failed))
