@@ -1,10 +1,11 @@
 """Main study, step 6: download the GFM layers for every used AOI from the public EODC STAC catalogue.
 
 For each AOI with status 'ok' in Results/main_s1_scenes.csv the script searches the STAC collection 'GFM'
-(https://stac.eodc.eu/api/v1, no login) for items that intersect the EMS AOI and whose time lies within
-the post-flood Sentinel-1 pass (the image EMS used). GFM delivers one item per Equi7 tile and scene;
-every data asset of every matching item is downloaded once to
-<DATA_ROOT>/01_raw/<event>/GFM/<file name>.
+(https://stac.eodc.eu/api/v1, no login) for items that intersect the EMS AOI and belong to the same
+Sentinel-1 scenes as the post-flood frames (the image EMS used): the item time must equal the start time of
+one of those frames (within MATCH_SECONDS). GFM delivers one item per Equi7 tile and scene. Items of
+neighbouring frames of the same pass are not used. The four layers the study needs (ASSETS) are downloaded
+once each to <DATA_ROOT>/01_raw/<event>/GFM/<asset key>__<item id>.tif.
 AOIs without any GFM item are listed; they keep only the EMS-baseline pair (RULES.md, rule 30).
 
 Outputs: Results/main_gfm_items.csv  one row per AOI and item, with the asset keys and file names
@@ -26,10 +27,17 @@ import provenance
 STAMP = provenance.stamp()
 STAC_SEARCH = 'https://stac.eodc.eu/api/v1/search'
 COLLECTION = 'GFM'
-PASS_BEFORE_MIN, PASS_AFTER_MIN = 2, 3      # time window around the start of the post-flood pass
+PASS_BEFORE_MIN, PASS_AFTER_MIN = 2, 3      # search window around the start of the post-flood pass
+MATCH_SECONDS = 2                           # item time = start time of a post-flood frame
+ASSETS = ['ensemble_flood_extent', 'exclusion_mask', 'advisory_flags', 'reference_water_mask']
 SCENES_CSV = os.path.join(REPO, 'Results', 'main_s1_scenes.csv')
 INV_CSV = os.path.join(REPO, 'Results', 'main_aoi_inventory.csv')
 OUT_CSV = os.path.join(REPO, 'Results', 'main_gfm_items.csv')
+
+
+def utc_naive(t):
+    t = pd.Timestamp(t)
+    return t.tz_convert(None) if t.tzinfo else t
 
 
 def iso(t):
@@ -94,7 +102,14 @@ def main():
     for _, s in scenes.iterrows():
         aoi = wkt.loads(inv.loc[(s['event'], s['aoi']), 'aoi_extent_wkt']).buffer(0)
         t0 = pd.Timestamp(s['post_start_utc'])
-        items = search(aoi, t0 - pd.Timedelta(minutes=PASS_BEFORE_MIN), t0 + pd.Timedelta(minutes=PASS_AFTER_MIN))
+        found = search(aoi, t0 - pd.Timedelta(minutes=PASS_BEFORE_MIN), t0 + pd.Timedelta(minutes=PASS_AFTER_MIN))
+        # keep only items of the same scenes as the post-flood frames (frame start time = 5th field of the name)
+        starts = [pd.Timestamp(dt.datetime.strptime(f.strip().split('_')[4], '%Y%m%dT%H%M%S'))
+                  for f in s['post_frames'].split(';')]
+        items = [it for it in found
+                 if any(abs((utc_naive(it['properties']['datetime']) - st).total_seconds()) <= MATCH_SECONDS
+                        for st in starts)]
+        skipped = len(found) - len(items)
         if not items:
             no_gfm.append('%s %s' % (s['event'], s['aoi']))
             rows.append({'event': s['event'], 'aoi': s['aoi'], 'post_start_utc': s['post_start_utc'], 'item_id': '',
@@ -104,14 +119,17 @@ def main():
         out_dir = os.path.join(DATA_ROOT, '01_raw', s['event'], 'GFM')
         if not args.list:
             os.makedirs(out_dir, exist_ok=True)
-        print('%s %s: %d GFM item(s)' % (s['event'], s['aoi'], len(items)))
+        print('%s %s: %d GFM item(s) of the post-flood scene(s)%s' % (s['event'], s['aoi'], len(items),
+              ' (%d item(s) of neighbouring frames not used)' % skipped if skipped else ''))
         for it in items:
-            data_assets = {k: a for k, a in it.get('assets', {}).items()
-                           if 'data' in (a.get('roles') or []) or a.get('href', '').lower().endswith('.tif')}
+            missing = [k for k in ASSETS if k not in it.get('assets', {})]
+            if missing:
+                print('    WARNING: item %s has no asset %s' % (it['id'], ', '.join(missing)))
+            data_assets = {k: it['assets'][k] for k in ASSETS if k in it.get('assets', {})}
             asset_keys |= set(data_assets)
             files = []
             for k, a in sorted(data_assets.items()):
-                name = a['href'].split('?')[0].rstrip('/').split('/')[-1]
+                name = '%s__%s.tif' % (k, it['id'])
                 files.append('%s=%s' % (k, name))
                 if not args.list:
                     status = download(a['href'], os.path.join(out_dir, name))
