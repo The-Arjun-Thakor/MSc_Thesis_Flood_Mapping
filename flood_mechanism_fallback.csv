@@ -1,0 +1,8 @@
+event,label,confirmed_by_me,basis
+EMSR855,River,yes,"EMS event description: Aniene River reached its third alert threshold, local flooding near Tivoli"
+EMSR856,River,yes,"EMS event description gives no flood type, but I chose River because the mapped AOIs lie on the Seman and Ishem river plains and Lake Skadar"
+EMSR861,River,yes,"EMS event description mentions Storm Kristin and a forecast river overflow of the Guadalquivir. I chose River because the main flood hazard is the river overflowing, despite the EMS sub-category calling it a flash flood."
+EMSR864,River,yes,"EMS event description mentions rainfall across several river basins. I chose River because the specific area mapped by EMS (AOI) is the Mira River basin."
+EMSR868,River,yes,"EMS event description: large areas of the Evros River basin flooded"
+EMSR871,River,yes,"EMS event description: rivers reached the third alert threshold, discharge from the Liscione Dam downstream"
+EMSR933,Flash,yes,"EMS event description: severe rainfall and flooding event on Crete"
