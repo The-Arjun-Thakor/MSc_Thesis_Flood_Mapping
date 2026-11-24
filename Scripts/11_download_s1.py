@@ -4,7 +4,8 @@ Each frame is downloaded once from the Copernicus Data Space to <DATA_ROOT>/01_r
 checked against the MD5 checksum published in the catalogue, and recorded with its SHA-256 in
 <DATA_ROOT>/download_manifest.csv. Frames that are already there and complete are skipped, so the
 script can be stopped and started again at any time. An interrupted frame is resumed from where it
-stopped (the partial file is kept as <name>.zip.part), and each frame is tried up to ATTEMPTS times.
+stopped (the partial file is kept as <name>.zip.part) where the server allows it; otherwise it starts
+again from the beginning. Each frame is tried up to ATTEMPTS times.
 
 Login: a free Copernicus Data Space account. The user name and password are read from the environment
 variables CDSE_USER and CDSE_PASSWORD, or asked for when the script starts. They are never stored.
@@ -85,6 +86,12 @@ def download(product_id, path, tok, expected_size):
     headers = {'Range': 'bytes=%d-' % have} if have else {}
     t0, done = time.time(), 0
     with s.get(url, stream=True, timeout=(60, 120), headers=headers) as r:
+        if have and r.status_code == 416:
+            # the server does not resume this product: delete the partial file and start again from zero
+            r.close()
+            os.remove(part)
+            print('    the server cannot resume this frame - starting it again from the beginning')
+            return download(product_id, path, tok, expected_size)
         if have and r.status_code == 206:
             mode = 'ab'
             print('    resuming at %.2f GB' % (have / 1e9))
