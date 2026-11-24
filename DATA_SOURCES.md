@@ -29,5 +29,8 @@ affect the results: the portal delivers whole tiles, and every layer is clipped 
 | AOI list and reasons for leaving AOIs out | `Scripts/09_aoi_inventory.py` -> `Results/main_aoi_inventory.csv` |
 | Sentinel-1 frame selection (post-flood and pre-flood) | Copernicus Data Space catalogue, by `Scripts/10_find_s1_scenes.py` -> `Results/main_s1_scenes.csv`, `Results/main_s1_downloads.csv` |
 | Sentinel-1 frames | Copernicus Data Space, by `Scripts/11_download_s1.py` (MD5 checked against the catalogue, SHA-256 recorded) |
-| GFM layers | EODC STAC catalogue, by script (to follow) |
-| EMS vector packages, WorldCover tiles, ERA5, HANZE | to be added |
+| GFM layers (ensemble flood extent, exclusion mask, advisory flags, reference water mask) | EODC STAC catalogue (`stac.eodc.eu`, collection GFM), by `Scripts/13_download_gfm.py`, only items of the post-flood scenes -> `Results/main_gfm_items.csv` (24 Nov 2026) |
+| GFM exclusion mask for EMSR871 AOI03, scene 2026-04-02 16:56:24 UTC | Missing in the STAC catalogue. Downloaded by hand from the GFM portal (area drawn around the AOI, named `emsr871_aoi03_test`, 24 Nov 2026, 07:02 UTC); the four tiles of that scene were extracted and saved as `exclusion_mask__ENSEMBLE_FLOOD_20260402T165624_VV_EU020M_<tile>__portal.tif`. The portal zip of the neighbouring scene 16:56:49 is kept but not used. |
+| EMS delineation packages (current product version) | EMS Rapid Mapping download path from the API, by `Scripts/14_download_ems.py` -> `Results/main_ems_products.csv` (24 Nov 2026) |
+| ESA WorldCover 2021 v200, 18 tiles | Public ESA WorldCover bucket, by `Scripts/15_download_worldcover.py` (24 Nov 2026) |
+| ERA5 wind, HANZE flood types | to be added |

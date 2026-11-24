@@ -97,3 +97,8 @@ search (`Scripts/10_find_s1_scenes.py`) and before any main-study image was proc
 - Rule 8: where the Sentinel-1 frames do not cover the whole AOI (three AOIs of EMSR861 on
   23 November 2026), the uncovered part has no baseline data and falls out of the comparison area under
   the existing no-data rule. The covered share is reported per AOI in `Results/main_s1_scenes.csv`.
+- Rule 18: GFM layers are taken only from the scenes of the post-flood frames (the image EMS used), not
+  from neighbouring frames of the same pass (`Scripts/13_download_gfm.py`, 24 November 2026).
+- For EMSR871 AOI03 the STAC catalogue has no GFM exclusion mask. The mask of the same scene
+  (2026-04-02 16:56:24 UTC) was taken from the GFM portal instead, so rule 8 applies unchanged
+  (see DATA_SOURCES.md).
