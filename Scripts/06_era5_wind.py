@@ -62,24 +62,61 @@ def download(nc_path, hour, north, west, south, east, days=None, hours=None):
 _MONTH_DONE = {}
 
 
+def month_request(key):
+    """Request of one month for all main-study AOIs of that month: file path and download arguments."""
+    group = [a for a in aoi_paths.main_aois() if nearest_hour(a.acquisition_utc.to_pydatetime()).strftime('%Y%m') == key]
+    hours_needed = sorted({nearest_hour(a.acquisition_utc.to_pydatetime()) for a in group})
+    bounds = np.array([gpd.read_file(a.ems_aoi).to_crs(4326).total_bounds for a in group])
+    north, west, south, east = era5_box(bounds[:, 0].min(), bounds[:, 1].min(), bounds[:, 2].max(), bounds[:, 3].max())
+    nc_path = os.path.join(ERA5_DIR, 'ERA5_wind10m_main_%s.nc' % key)
+    return nc_path, len(group), (hours_needed[0], north, west, south, east,
+                                 sorted({h.day for h in hours_needed}), sorted({h.hour for h in hours_needed}))
+
+
 def month_file(hour):
     """ERA5 file of one month for all main-study AOIs of that month (downloaded once)."""
     key = hour.strftime('%Y%m')
     if key in _MONTH_DONE:
         return _MONTH_DONE[key]
-    group = [a for a in aoi_paths.main_aois() if nearest_hour(a.acquisition_utc.to_pydatetime()).strftime('%Y%m') == key]
-    hours_needed = sorted({nearest_hour(a.acquisition_utc.to_pydatetime()) for a in group})
-    nc_path = os.path.join(ERA5_DIR, 'ERA5_wind10m_main_%s.nc' % key)
+    nc_path, n, args = month_request(key)
     if not os.path.exists(nc_path):
-        bounds = np.array([gpd.read_file(a.ems_aoi).to_crs(4326).total_bounds for a in group])
-        north, west, south, east = era5_box(bounds[:, 0].min(), bounds[:, 1].min(), bounds[:, 2].max(), bounds[:, 3].max())
-        print('one request for %d AOIs of %s (%d hours)' % (len(group), key, len(hours_needed)))
-        download(nc_path, hours_needed[0], north, west, south, east,
-                 days=sorted({h.day for h in hours_needed}), hours=sorted({h.hour for h in hours_needed}))
+        print('one request for %d AOIs of %s (%d hours)' % (n, key, len(args[6])))
+        download(nc_path, *args[:5], days=args[5], hours=args[6])
     else:
         print('using the ERA5 file already downloaded:', nc_path)
     _MONTH_DONE[key] = nc_path
     return nc_path
+
+
+def prefetch(aois):
+    """Send the requests of all months that are still missing at the same time, so they wait in the
+    Climate Data Store queue in parallel instead of one after the other."""
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    keys = sorted({nearest_hour(a.acquisition_utc.to_pydatetime()).strftime('%Y%m') for a in aois if not a.pilot})
+    todo = []
+    for k in keys:
+        nc_path, n, args = month_request(k)
+        if not os.path.exists(nc_path):
+            todo.append((k, nc_path, n, args))
+    if not todo:
+        return
+    print('sending %d monthly ERA5 requests at the same time: %s' % (len(todo), ', '.join(t[0] for t in todo)))
+    os.makedirs(ERA5_DIR, exist_ok=True)
+
+    def get(t):
+        k, nc_path, n, args = t
+        download(nc_path + '.part', *args[:5], days=args[5], hours=args[6])
+        os.replace(nc_path + '.part', nc_path)
+        return k, n
+
+    with ThreadPoolExecutor(max_workers=len(todo)) as ex:
+        futures = [ex.submit(get, t) for t in todo]
+        for f in as_completed(futures):
+            try:
+                k, n = f.result()
+                print('>>> ERA5 file for %s arrived (%d AOIs)' % (k, n))
+            except Exception as e:
+                print('>>> an ERA5 request failed: %s' % e)
 
 
 def process(area):
@@ -158,7 +195,10 @@ def process(area):
 
 
 def main():
-    for a in aoi_paths.from_args(__doc__):
+    aois = aoi_paths.from_args(__doc__)
+    if len(aois) > 1:
+        prefetch(aois)
+    for a in aois:
         process(a)
     print('\ncode version: %(git_commit)s | run: %(run_utc)s' % STAMP)
 
