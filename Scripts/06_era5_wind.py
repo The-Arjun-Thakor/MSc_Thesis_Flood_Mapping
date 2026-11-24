@@ -11,6 +11,9 @@ Usage:  python Scripts/06_era5_wind.py                         (pilot: EMSR866 A
         python Scripts/06_era5_wind.py --event EMSR788 --aoi AOI01
         python Scripts/06_era5_wind.py --all                    (all main-study AOIs)
 The acquisition time is the EMS time for the pilot and the start of the post-flood pass for the main study.
+Main study: to keep the number of Climate Data Store requests small, one file is requested per month for
+all AOIs of that month (their days and hours, over a box around all of them). Each AOI then reads its own
+hour and its own cells from that file; the ERA5 values are the same as with one request per AOI.
 """
 import datetime, os, sys
 import numpy as np
@@ -37,16 +40,46 @@ def nearest_hour(t):
     return (t + datetime.timedelta(minutes=30)).replace(minute=0, second=0, microsecond=0)
 
 
-def download(nc_path, hour, north, west, south, east):
+def era5_box(xmin, ymin, xmax, ymax):
+    """Bounding box widened to whole ERA5 cells plus one cell around it: north, west, south, east."""
+    return (np.ceil(ymax / ERA5_STEP) * ERA5_STEP + ERA5_STEP, np.floor(xmin / ERA5_STEP) * ERA5_STEP - ERA5_STEP,
+            np.floor(ymin / ERA5_STEP) * ERA5_STEP - ERA5_STEP, np.ceil(xmax / ERA5_STEP) * ERA5_STEP + ERA5_STEP)
+
+
+def download(nc_path, hour, north, west, south, east, days=None, hours=None):
     import cdsapi
     request = {'product_type': ['reanalysis'],
                'variable': ['10m_u_component_of_wind', '10m_v_component_of_wind'],
-               'year': ['%04d' % hour.year], 'month': ['%02d' % hour.month], 'day': ['%02d' % hour.day],
-               'time': ['%02d:00' % hour.hour],
-               'area': [north, west, south, east],           # north, west, south, east
+               'year': ['%04d' % hour.year], 'month': ['%02d' % hour.month],
+               'day': ['%02d' % d for d in (days or [hour.day])],
+               'time': ['%02d:00' % h for h in (hours or [hour.hour])],
+               'area': [float(north), float(west), float(south), float(east)],    # north, west, south, east
                'data_format': 'netcdf', 'download_format': 'unarchived'}
     print('requesting ERA5 from the Climate Data Store:', request)
     cdsapi.Client().retrieve('reanalysis-era5-single-levels', request, nc_path)
+
+
+_MONTH_DONE = {}
+
+
+def month_file(hour):
+    """ERA5 file of one month for all main-study AOIs of that month (downloaded once)."""
+    key = hour.strftime('%Y%m')
+    if key in _MONTH_DONE:
+        return _MONTH_DONE[key]
+    group = [a for a in aoi_paths.main_aois() if nearest_hour(a.acquisition_utc.to_pydatetime()).strftime('%Y%m') == key]
+    hours_needed = sorted({nearest_hour(a.acquisition_utc.to_pydatetime()) for a in group})
+    nc_path = os.path.join(ERA5_DIR, 'ERA5_wind10m_main_%s.nc' % key)
+    if not os.path.exists(nc_path):
+        bounds = np.array([gpd.read_file(a.ems_aoi).to_crs(4326).total_bounds for a in group])
+        north, west, south, east = era5_box(bounds[:, 0].min(), bounds[:, 1].min(), bounds[:, 2].max(), bounds[:, 3].max())
+        print('one request for %d AOIs of %s (%d hours)' % (len(group), key, len(hours_needed)))
+        download(nc_path, hours_needed[0], north, west, south, east,
+                 days=sorted({h.day for h in hours_needed}), hours=sorted({h.hour for h in hours_needed}))
+    else:
+        print('using the ERA5 file already downloaded:', nc_path)
+    _MONTH_DONE[key] = nc_path
+    return nc_path
 
 
 def process(area):
@@ -57,20 +90,27 @@ def process(area):
     aoi = gpd.read_file(area.ems_aoi).to_crs(4326)
     shape = aoi.union_all() if hasattr(aoi, 'union_all') else aoi.unary_union
     xmin, ymin, xmax, ymax = shape.bounds
-    # request box: the AOI bounding box, widened to whole ERA5 cells plus one cell around it
-    west = np.floor(xmin / ERA5_STEP) * ERA5_STEP - ERA5_STEP
-    east = np.ceil(xmax / ERA5_STEP) * ERA5_STEP + ERA5_STEP
-    south = np.floor(ymin / ERA5_STEP) * ERA5_STEP - ERA5_STEP
-    north = np.ceil(ymax / ERA5_STEP) * ERA5_STEP + ERA5_STEP
+    north, west, south, east = era5_box(xmin, ymin, xmax, ymax)
 
     os.makedirs(ERA5_DIR, exist_ok=True)
-    nc_path = os.path.join(ERA5_DIR, 'ERA5_wind10m_%s_%s_%s.nc' % (EVENT, AOI, hour.strftime('%Y%m%dT%H00Z')))
-    if os.path.exists(nc_path):
-        print('using the ERA5 file already downloaded:', nc_path)
+    if area.pilot:
+        nc_path = os.path.join(ERA5_DIR, 'ERA5_wind10m_%s_%s_%s.nc' % (EVENT, AOI, hour.strftime('%Y%m%dT%H00Z')))
+        if os.path.exists(nc_path):
+            print('using the ERA5 file already downloaded:', nc_path)
+        else:
+            download(nc_path, hour, north, west, south, east)
     else:
-        download(nc_path, hour, north, west, south, east)
+        nc_path = month_file(hour)
 
     ds = xr.open_dataset(nc_path)
+    tname = 'valid_time' if 'valid_time' in ds.dims else ('time' if 'time' in ds.dims else None)
+    if tname:                                            # monthly file: take this AOI's hour
+        times = pd.to_datetime(ds[tname].values)
+        if pd.Timestamp(hour) not in times:
+            sys.exit('ERROR: %s does not contain %s - delete the file and run again' % (nc_path, hour))
+        ds = ds.sel({tname: pd.Timestamp(hour)})
+    # only the ERA5 cells around this AOI
+    ds = ds.sel(latitude=slice(north, south), longitude=slice(west, east))
     u, v = ds['u10'].squeeze(), ds['v10'].squeeze()
     if set(u.dims) != {'latitude', 'longitude'}:
         sys.exit('ERROR: expected one time step with latitude/longitude, got %s' % (u.dims,))

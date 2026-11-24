@@ -1,0 +1,2 @@
+event,aoi,acquisition_utc,era5_hour_utc,era5_cells,wind_mean_ms,wind_min_ms,wind_max_ms,wind_limit_ms,wind_label,era5_file,git_commit,run_utc
+EMSR788,AOI01,2025-01-30T17:56Z,2025-01-30T18:00Z,10,3.22,2.89,3.62,3.3,calm,ERA5_wind10m_EMSR788_AOI01_20250130T1800Z.nc,e10c299314,2026-11-24T11:58:27Z

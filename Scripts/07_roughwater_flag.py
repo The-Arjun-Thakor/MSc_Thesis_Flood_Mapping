@@ -21,6 +21,7 @@ import geopandas as gpd
 import rasterio
 import xarray as xr
 from rasterio import features
+from rasterio.warp import transform_bounds
 from shapely.geometry import box
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
@@ -82,6 +83,11 @@ def process(area):
     if not nc:
         sys.exit('ERROR: %s not found in %s - run 06_era5_wind.py first' % (wind['era5_file'], ERA5_DIR))
     ds = xr.open_dataset(nc[0])
+    tname = 'valid_time' if 'valid_time' in ds.dims else ('time' if 'time' in ds.dims else None)
+    if tname:                                            # monthly file (main study): take this AOI's hour
+        ds = ds.sel({tname: pd.Timestamp(wind['era5_hour_utc'].rstrip('Z'))})
+    lon0, lat0, lon1, lat1 = gpd.GeoSeries([box(*transform_bounds(crs, 'EPSG:4326', *rasterio.transform.array_bounds(aoi.shape[0], aoi.shape[1], transform)))], crs=4326).total_bounds
+    ds = ds.sel(latitude=slice(lat1 + ERA5_STEP, lat0 - ERA5_STEP), longitude=slice(lon0 - ERA5_STEP, lon1 + ERA5_STEP))
     u, v = ds['u10'].squeeze(), ds['v10'].squeeze()
     speed = np.sqrt(u ** 2 + v ** 2)
     cells = []
